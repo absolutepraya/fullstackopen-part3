@@ -56,6 +56,49 @@ app.delete('/api/persons/:id', (req, res) => {
     res.status(204).end()
 })
 
+// generate id using math random from 1 to 1000000
+const generateId = () => {
+    const id = persons.length > 0
+        ? Math.floor(Math.random() * 1000000)
+        : 0
+    console.log(`random generated id: ${id}`)
+    return id
+}
+
+// add person
+app.post('/api/persons', (req, res) => {
+    const body = req.body
+
+    // check if body is empty
+    if (!body.name || !body.number) {
+        console.log('name or number missing')
+        return res.status(400).json({
+            error: 'name or number missing'
+        })
+    }
+
+    // check if name already exists
+    const nameExists = persons.find(person => person.name === body.name)
+    if (nameExists) {
+        console.log(`${body.name} already exists`)
+        return res.status(400).json({
+            error: `${body.name} already exists`
+        })
+    }
+
+    // create new person
+    const person = {
+        name: body.name,
+        number: body.number,
+        id: generateId()
+    }
+
+    // add person to persons
+    persons = persons.concat(person)
+
+    res.json(person)
+})
+
 // port 3001
 const PORT = 3001
 app.listen(PORT, () => {
