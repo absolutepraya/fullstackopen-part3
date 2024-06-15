@@ -3,7 +3,7 @@
 ## Part 3: Programming a Server with NodeJS and Express
 
 Phonebook app (not fully featured yet):
-https://fullstackopen-part3-eiry.onrender.com/
+https://praya-phonebook.up.railway.app/
 
 Exercises:
 -   3.1: phonebook backend step 1
