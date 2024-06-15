@@ -28,6 +28,7 @@ let persons = [
 const app = express()
 app.use(cors())
 app.use(express.json())
+app.use(express.static('dist'))
 
 // log request body
 app.use((req, res, next) => {
