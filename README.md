@@ -14,3 +14,6 @@ Exercises:
 -   3.6: phonebook backend step 6
 -   3.7: phonebook backend step 7
 -   3.8: phonebook backend step 8
+-   3.9: phonebook backend step 9
+-   3.10: phonebook backend step 10
+-   3.11: phonebook full stack
