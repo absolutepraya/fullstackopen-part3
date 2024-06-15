@@ -1,8 +1,6 @@
-const http = require('http')
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
-
-app.use(express.json())
 
 let persons = [
     {
@@ -27,14 +25,28 @@ let persons = [
     }
 ]
 
+app.use(express.json())
+
+// log request body
+app.use((req, res, next) => {
+    req.parsedBody = JSON.stringify(req.body)
+    next()
+})
+
+morgan.token('body', (req) => req.parsedBody)
+
+const customFormat = ':method :url :status :res[content-length] - :response-time ms :body'
+
+app.use(morgan(customFormat))
+
 // path: /info
-app.get('/info', (req, res) => {
+app.get('/info', (res) => {
     const date = new Date()
     res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date}</p>`)
 })
 
 // path: /api/persons
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (res) => {
     res.json(persons)
 })
 
@@ -98,6 +110,13 @@ app.post('/api/persons', (req, res) => {
 
     res.json(person)
 })
+
+// unknown endpoint
+const unknownEndpoint = (res) => {
+    res.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
 
 // port 3001
 const PORT = 3001
