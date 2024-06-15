@@ -17,3 +17,4 @@ Exercises:
 -   3.9: phonebook backend step 9
 -   3.10: phonebook backend step 10
 -   3.11: phonebook full stack
+-   3.12: command-line database
