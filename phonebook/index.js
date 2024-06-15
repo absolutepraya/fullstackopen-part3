@@ -42,13 +42,13 @@ const customFormat = ':method :url :status :res[content-length] - :response-time
 app.use(morgan(customFormat))
 
 // path: /info
-app.get('/info', (res) => {
+app.get('/info', (req, res) => {
     const date = new Date()
     res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date}</p>`)
 })
 
 // path: /api/persons
-app.get('/api/persons', (res) => {
+app.get('/api/persons', (req, res) => {
     res.json(persons)
 })
 
