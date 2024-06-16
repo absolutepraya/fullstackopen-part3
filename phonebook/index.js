@@ -41,27 +41,30 @@ app.get('/api/persons', (req, res) => {
 })
 
 // get person by id
-app.get('/api/persons/:id', (req, res) => {
-    Person.findById(req.params.id).then(person => {
-        res.json(person)
-    })
+app.get('/api/persons/:id', (req, res, next) => {
+    Person.findById(req.params.id)
+        .then(person => {
+            if (person) {
+                res.json(person)
+            } else {
+                res.status(404).end()
+            }
+        })
+        .catch(error => {
+            next(error)
+        })
 })
 
 // delete person
 app.delete('/api/persons/:id', (req, res) => {
-    Person.findByIdAndDelete(req.params.id).then(() => {
-        res.status(204).end()
-    })
+    Person.findByIdAndDelete(req.params.id)
+        .then(() => {
+            res.status(204).end()
+        })
+        .catch(error => {
+            next(error)
+        })
 })
-
-// generate id using math random from 1 to 1000000
-// const generateId = () => {
-//     const id = persons.length > 0
-//         ? Math.floor(Math.random() * 1000000)
-//         : 0
-//     console.log(`random generated id: ${id}`)
-//     return id
-// }
 
 // add person
 app.post('/api/persons', (req, res) => {
@@ -87,8 +90,7 @@ app.post('/api/persons', (req, res) => {
     // create new person using mongoose model
     const person = new Person({
         name: body.name,
-        number: body.number,
-        // id: generateId()
+        number: body.number
     })
 
     // add person
@@ -103,6 +105,21 @@ const unknownEndpoint = (req, res, next) => {
 }
 
 app.use(unknownEndpoint)
+
+// error handling
+const errorHandler = (error, req, res, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return res.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return res.status(400).json({ error: error.message })
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
 
 
 // ----------------------------
