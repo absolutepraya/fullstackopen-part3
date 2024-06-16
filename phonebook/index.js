@@ -70,23 +70,6 @@ app.delete('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
     const body = req.body
 
-    // check if body is empty
-    if (!body.name || !body.number) {
-        console.log('name or number missing')
-        return res.status(400).json({
-            error: 'name or number missing'
-        })
-    }
-
-    // TODO check if name already exists
-    // const nameExists = persons.find(person => person.name === body.name)
-    // if (nameExists) {
-    //     console.log(`${body.name} already exists`)
-    //     return res.status(400).json({
-    //         error: `${body.name} already exists`
-    //     })
-    // }
-
     // create new person using mongoose model
     const person = new Person({
         name: body.name,
@@ -97,6 +80,28 @@ app.post('/api/persons', (req, res) => {
     person.save().then(savedPerson => {
         res.json(savedPerson)
     })
+})
+
+// update person
+app.put('/api/persons/:id', (req, res, next) => {
+    const body = req.body
+
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(req.params.id, person, { new: true })
+        .then(updatedPerson => {
+            if (updatedPerson) {
+                res.json(updatedPerson)
+            } else {
+                const error = new Error('person not found')
+                error.name = 'PersonNotFound'
+                next(error)
+            }
+        })
+        .catch(error => next(error))
 })
 
 // unknown endpoint
@@ -110,13 +115,19 @@ app.use(unknownEndpoint)
 const errorHandler = (error, req, res, next) => {
     console.error(error.message)
 
-    if (error.name === 'CastError') {
-        return res.status(400).send({ error: 'malformatted id' })
-    } else if (error.name === 'ValidationError') {
-        return res.status(400).json({ error: error.message })
+    switch (error.name) {
+        case 'CastError':
+            res.status(400).send({ error: 'malformatted id' });
+            break;
+        case 'ValidationError':
+            res.status(400).json({ error: error.message });
+            break;
+        case 'PersonNotFound':
+            res.status(404).send({ error: error.message });
+            break;
+        default:
+            res.status(500).json({ error: 'internal server error' });
     }
-
-    next(error)
 }
 
 app.use(errorHandler)
