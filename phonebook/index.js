@@ -24,6 +24,7 @@ app.use(morgan(customFormat))
 
 // ---------- routes ----------
 
+// note: some of validation for name and number is already on the frontend
 
 // get info
 app.get('/info', (req, res) => {
@@ -56,7 +57,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 })
 
 // delete person
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndDelete(req.params.id)
         .then(() => {
             res.status(204).end()
@@ -67,19 +68,38 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 // add person
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', async (req, res, next) => {
     const body = req.body
 
-    // create new person using mongoose model
-    const person = new Person({
-        name: body.name,
-        number: body.number
-    })
+    // check if the name or number is missing
+    if (!body.name || !body.number) {
+        const error = new Error('Name or number is missing')
+        error.name = 'ValidationError'
+        return next(error)
+    }
 
-    // add person
-    person.save().then(savedPerson => {
+    try {
+        // check if the person already exists with the same name and number
+        const persons = await Person.find({ name: new RegExp('^' + body.name + '$', 'i') });
+        const matchedPerson = persons.find(person => person.number.replace(/\s|-/g, '') === body.number.replace(/\s|-/g, ''))
+
+        if (matchedPerson) {
+            throw new Error(`${body.name} is already added to the phonebook`)
+        }
+
+        // create new person using mongoose model
+        const person = new Person({
+            name: body.name,
+            number: body.number
+        })
+
+        // add person
+        const savedPerson = await person.save()
         res.json(savedPerson)
-    })
+    } catch (error) {
+        error.name = 'ValidationError'
+        next(error)
+    }
 })
 
 // update person
@@ -91,7 +111,7 @@ app.put('/api/persons/:id', (req, res, next) => {
             if (updatedPerson) {
                 res.json(updatedPerson)
             } else {
-                const error = new Error('person not found')
+                const error = new Error(`${name} is not found`)
                 error.name = 'PersonNotFound'
                 next(error)
             }
@@ -112,7 +132,7 @@ const errorHandler = (error, req, res, next) => {
 
     switch (error.name) {
         case 'CastError':
-            res.status(400).send({ error: 'malformatted id' });
+            res.status(400).send({ error: 'Malformatted ID' });
             break;
         case 'ValidationError':
             res.status(400).json({ error: error.message });
@@ -121,7 +141,7 @@ const errorHandler = (error, req, res, next) => {
             res.status(404).send({ error: error.message });
             break;
         default:
-            res.status(500).json({ error: 'internal server error' });
+            res.status(500).json({ error: 'Internal server error' });
     }
 }
 
