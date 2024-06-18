@@ -55,6 +55,6 @@ export default [{
         },
 
         ecmaVersion: 5,
-        sourceType: 'module',
+        sourceType: 'commonjs',
     },
 }]
