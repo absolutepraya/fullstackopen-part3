@@ -127,7 +127,7 @@ const unknownEndpoint = (req, res) => {
 app.use(unknownEndpoint)
 
 // error handling
-const errorHandler = (error, req, res) => {
+const errorHandler = (error, req, res, next) => {
     console.error(error.message)
 
     switch (error.name) {
@@ -143,6 +143,8 @@ const errorHandler = (error, req, res) => {
     default:
         res.status(500).json({ error: 'Internal server error' })
     }
+
+    next(error)
 }
 
 app.use(errorHandler)
