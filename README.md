@@ -18,3 +18,13 @@ Exercises:
 -   3.10: phonebook backend step 10
 -   3.11: phonebook full stack
 -   3.12: command-line database
+-   3.13: phonebook database step 1
+-   3.14: phonebook database step 2
+-   3.15: phonebook database step 3
+-   3.16: phonebook database step 4
+-   3.17: phonebook database step 5
+-   3.18: phonebook database step 6
+-   3.19: phonebook database step 7
+-   3.20: phonebook database step 8
+-   3.21: phonebook database backend to production
+-   3.22: lint configuration
