@@ -80,7 +80,7 @@ app.post('/api/persons', async (req, res, next) => {
 
     try {
         // check if the person already exists with the same name and number
-        const persons = await Person.find({ name: new RegExp('^' + body.name + '$', 'i') });
+        const persons = await Person.find({ name: new RegExp('^' + body.name + '$', 'i') })
         const matchedPerson = persons.find(person => person.number.replace(/\s|-/g, '') === body.number.replace(/\s|-/g, ''))
 
         if (matchedPerson) {
@@ -120,28 +120,28 @@ app.put('/api/persons/:id', (req, res, next) => {
 })
 
 // unknown endpoint
-const unknownEndpoint = (req, res, next) => {
+const unknownEndpoint = (req, res) => {
     res.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
 
 // error handling
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res) => {
     console.error(error.message)
 
     switch (error.name) {
-        case 'CastError':
-            res.status(400).send({ error: 'Malformatted ID' });
-            break;
-        case 'ValidationError':
-            res.status(400).json({ error: error.message });
-            break;
-        case 'PersonNotFound':
-            res.status(404).send({ error: error.message });
-            break;
-        default:
-            res.status(500).json({ error: 'Internal server error' });
+    case 'CastError':
+        res.status(400).send({ error: 'Malformatted ID' })
+        break
+    case 'ValidationError':
+        res.status(400).json({ error: error.message })
+        break
+    case 'PersonNotFound':
+        res.status(404).send({ error: error.message })
+        break
+    default:
+        res.status(500).json({ error: 'Internal server error' })
     }
 }
 
